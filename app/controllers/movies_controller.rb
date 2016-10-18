@@ -54,4 +54,13 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  private
+  def check
+    if params[:ratings]
+      params[:ratings].keys
+    else
+      @all_ratings
+    end
+  end
+
 end
