@@ -12,10 +12,6 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-        @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
-    @checked_ratings = check
-    @checked_ratings.each do |rating|
-      params[rating] = true
     end
 
     if params[:sort]
@@ -54,13 +50,6 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
-  private
-  def check
-    if params[:ratings]
-      params[:ratings].keys
-    else
-      @all_ratings
-    end
-  end
+
 
 end
