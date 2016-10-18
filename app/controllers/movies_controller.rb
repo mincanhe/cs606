@@ -12,7 +12,19 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+        @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
+    @checked_ratings = check
+    @checked_ratings.each do |rating|
+      params[rating] = true
+    end
+
+    if params[:sort]
+      @movies = Movie.order(params[:sort])
+    else
+      @movies = Movie.where(:rating => @checked_ratings)
+    end
   end
+  
 
   def new
     # default: render 'new' template
