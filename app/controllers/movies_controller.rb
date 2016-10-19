@@ -12,47 +12,22 @@ class MoviesController < ApplicationController
 
   def index
 
-    @movies = Movie.all
-    @redirect = 0
-    if(@checked != nil)
-      @movies = @movies.find_all{ |m| @checked.has_key?(m.rating) and  @checked[m.rating]==true}      
-    end
-    
-    
-   if(params[:sort].to_s == 'title')
-    session[:sort] = params[:sort]
-    @movies = @movies.sort_by{|m| m.title }
-   elsif(params[:sort].to_s == 'release')
-    session[:sort] = params[:sort]
-    @movies = @movies.sort_by{|m| m.release_date.to_s }
-   elsif(session.has_key?(:sort) )
-    params[:sort] = session[:sort]
-    @redirect = 1
-   end
-    
-    
-    if(params[:ratings] != nil)
-      session[:ratings] = params[:ratings]
-      @movies = @movies.find_all{ |m| params[:ratings].has_key?(m.rating) }
-    elsif(session.has_key?(:ratings) )
-      params[:ratings] = session[:ratings]
-      @redirect =1
-    end
-    
-    if(@redirect ==1)
-    redirect_to movies_path(:sort=>params[:sort], :ratings =>params[:ratings] )
-    end
-
-    @checked = {}
-    @all_ratings =  ['G','PG','PG-13','R']
-
-    @all_ratings.each { |rating|
-      if params[:ratings] == nil
-        @checked[rating] = false
-      else
-        @checked[rating] = params[:ratings].has_key?(rating)
-      end
-    }
+    if params.key?(:sort_by)
+			session[:sort_by] = params[:sort_by]
+		elsif session.key?(:sort_by)
+			params[:sort_by] = session[:sort_by]
+			redirect_to movies_path(params) and return
+		end
+		@hilite = sort_by = session[:sort_by]
+		@all_ratings = Movie.all_ratings
+		if params.key?(:ratings)
+			session[:ratings] = params[:ratings]
+		elsif session.key?(:ratings)
+			params[:ratings] = session[:ratings]
+			redirect_to movies_path(params) and return
+		end
+		@checked_ratings = (session[:ratings].keys if session.key?(:ratings)) || @all_ratings
+    @movies = Movie.order(sort_by).where(rating: @checked_ratings)
   end
   
 
